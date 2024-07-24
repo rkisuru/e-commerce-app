@@ -5,6 +5,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/v1/customer")
 @RequiredArgsConstructor
@@ -25,6 +27,18 @@ public class CustomerController {
     ) {
         customerService.updateCustomer(request);
         return ResponseEntity.accepted().build();
+    }
+
+    @GetMapping
+    public ResponseEntity<List<CustomerResponse>> getAllCustomers() {
+        return ResponseEntity.ok(customerService.getAllCustomers());
+    }
+
+    @GetMapping("/exists/{customer-id}")
+    public ResponseEntity<Boolean> existsById(
+            @PathVariable("customer-id") String customerId
+    ) {
+        return ResponseEntity.ok(customerService.existsById(customerId));
     }
 
 }
