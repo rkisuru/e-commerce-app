@@ -8,6 +8,7 @@ import com.rkisuru.order.orderline.OrderLineRequest;
 import com.rkisuru.order.orderline.OrderLineService;
 import com.rkisuru.order.product.ProductClient;
 import com.rkisuru.order.product.PurchaseRequest;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -68,5 +69,12 @@ public class OrderService {
                 .stream()
                 .map(orderMapper::fromOrder)
                 .collect(Collectors.toList());
+    }
+
+    public OrderResponse findById(Integer id) {
+
+        return orderRepository.findById(id)
+                .map(orderMapper::fromOrder)
+                .orElseThrow(()-> new EntityNotFoundException("Order not found for this id: " + id));
     }
 }
