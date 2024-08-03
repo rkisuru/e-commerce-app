@@ -1,5 +1,6 @@
 package com.rkisuru.order.order;
 
+import com.rkisuru.order.product.PurchaseRequest;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -25,7 +26,7 @@ public record OrderRequest(
         Paymentmethod paymentmethod,
 
         @NotEmpty(message = "You should at least purchase one product")
-        List<OrderRequest> products
+        List<PurchaseRequest> products
 
 ) {
 }
