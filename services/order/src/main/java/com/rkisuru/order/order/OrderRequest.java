@@ -20,7 +20,7 @@ public record OrderRequest(
         @NotNull(message = "Customer should be present")
         @NotEmpty(message = "Customer should be present")
         @NotBlank(message = "Customer should be present")
-        String customerId,
+        Integer customerId,
 
         @NotNull(message = "Should be defined")
         Paymentmethod paymentmethod,
