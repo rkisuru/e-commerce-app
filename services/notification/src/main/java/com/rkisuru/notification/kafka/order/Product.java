@@ -8,6 +8,6 @@ public record Product(
         String name,
         String description,
         BigDecimal price,
-        Double quantity
+        Double stock
 ) {
 }

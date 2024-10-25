@@ -15,19 +15,19 @@ public class CustomerService {
     private final CustomerRepository customerRepository;
     private final CustomerMapper customerMapper;
 
-    public String createCustomer(CustomerRequest request) {
-        var customer = customerRepository.save(customerMapper.toCustomer(request));
+    public Integer createCustomer(CustomerRequest request) {
+        Customer customer = customerRepository.save(customerMapper.toCustomer(request));
         return customer.getId();
     }
 
-    public void updateCustomer(CustomerRequest request) {
+    public Customer updateCustomer(CustomerRequest request, Integer customerId) {
 
-        var customer = customerRepository.findById(request.id())
+        Customer customer = customerRepository.findById(customerId)
                 .orElseThrow(()-> new CustomerNotFoundException(
-                        String.format("Customer with id " + request.id() + " not found")
+                        String.format("Customer with id " + customerId + " not found")
                 ));
         mergerCustomer(customer, request);
-        customerRepository.save(customer);
+        return customerRepository.save(customer);
     }
 
     private void mergerCustomer(Customer customer, CustomerRequest request) {
@@ -54,20 +54,20 @@ public class CustomerService {
                 .collect(Collectors.toList());
     }
 
-    public Boolean existsById(String customerId) {
+    public Boolean existsById(Integer customerId) {
 
         return customerRepository.findById(customerId)
                 .isPresent();
     }
 
-    public CustomerResponse findById(String customerId) {
+    public CustomerResponse findById(Integer customerId) {
 
         return customerRepository.findById(customerId)
                 .map(customerMapper::fromCustomer)
                 .orElseThrow(()-> new CustomerNotFoundException("Customer with id " + customerId + " not found"));
     }
 
-    public void deleteCustomer(String customerId) {
+    public void deleteCustomer(Integer customerId) {
 
         customerRepository.deleteById(customerId);
     }

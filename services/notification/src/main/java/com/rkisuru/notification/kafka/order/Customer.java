@@ -2,7 +2,7 @@ package com.rkisuru.notification.kafka.order;
 
 public record Customer(
 
-        String id,
+        Integer id,
         String firstname,
         String lastname,
         String email

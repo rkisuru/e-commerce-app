@@ -21,7 +21,7 @@ public class ProductController {
         return ResponseEntity.ok(productService.createProduct(productRequest));
     }
 
-    @GetMapping("/purchase")
+    @PostMapping("/purchase")
     public ResponseEntity<List<ProductPurchaseResponse>> purchaseProducts(
             @RequestBody List<ProductPurchaseRequest> request
     ) {
