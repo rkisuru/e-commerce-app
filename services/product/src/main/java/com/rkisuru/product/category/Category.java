@@ -1,27 +1,26 @@
 package com.rkisuru.product.category;
 
-import com.rkisuru.product.product.Product;
-import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.Getter;
 
-import java.util.List;
+@Getter
+public enum Category {
 
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
-@Builder
-@Entity
-public class Category {
+    ELECTRONICS(new SubCategory[]{SubCategory.SMARTPHONES, SubCategory.LAPTOPS}),
+    FASHION(new SubCategory[]{SubCategory.MENS_WEAR, SubCategory.WOMENS_WEAR}),
+    BOOKS(new SubCategory[]{SubCategory.FICTION, SubCategory.NON_FICTION});
 
-    @Id
-    @GeneratedValue
-    private Integer id;
-    private String name;
-    private String description;
+    private final SubCategory[] subCategories;
 
-    @OneToMany(mappedBy = "category", cascade = CascadeType.REMOVE)
-    private List<Product> products;
+    Category(SubCategory[] subCategories) {
+        this.subCategories = subCategories;
+    }
+
+    public enum SubCategory {
+        SMARTPHONES,
+        LAPTOPS,
+        MENS_WEAR,
+        WOMENS_WEAR,
+        FICTION,
+        NON_FICTION
+    }
 }
