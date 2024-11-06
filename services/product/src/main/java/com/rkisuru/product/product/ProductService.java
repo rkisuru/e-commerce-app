@@ -1,5 +1,6 @@
 package com.rkisuru.product.product;
 
+import com.rkisuru.product.category.Category;
 import com.rkisuru.product.exception.ProductPurchaseException;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
@@ -69,5 +70,35 @@ public class ProductService {
                 .stream()
                 .map(productMapper::toProductResponse)
                 .collect(Collectors.toList());
+    }
+
+    public ProductResponse editProduct(Integer productId, ProductRequest request) {
+        Product product = productRepository.findById(productId)
+                .orElseThrow(()-> new EntityNotFoundException("Product not found"));
+
+        if(!request.name().isBlank()) {
+            product.setName(request.name());
+        }
+        if(!request.description().isBlank()) {
+            product.setDescription(request.description());
+        }
+        if(request.stock() != null) {
+            product.setStock(request.stock());
+        }
+        if(request.price() != null) {
+            product.setPrice(request.price());
+        }
+        if (request.category() != null) {
+            product.setCategory(Category.valueOf(request.category()));
+        }
+        if (request.subCategory() != null) {
+            product.setSubCategory(Category.SubCategory.valueOf(request.subCategory()));
+        }
+        productRepository.save(product);
+        return productMapper.toProductResponse(product);
+    }
+
+    public void deleteProduct(Integer productId) {
+        productRepository.deleteById(productId);
     }
 }
