@@ -10,12 +10,12 @@ public class ProductMapper {
     public Product toProduct(ProductRequest productRequest) {
 
         return Product.builder()
-                .id(productRequest.id())
                 .name(productRequest.name())
                 .description(productRequest.description())
                 .stock(productRequest.stock())
                 .price(productRequest.price())
-                .category(Category.builder().id(productRequest.id()).build())
+                .category(Category.valueOf(productRequest.category()))
+                .subCategory(Category.SubCategory.valueOf(productRequest.subCategory()))
                 .build();
     }
 
@@ -27,10 +27,8 @@ public class ProductMapper {
                 product.getDescription(),
                 product.getStock(),
                 product.getPrice(),
-                product.getCategory().getId(),
-                product.getCategory().getName(),
-                product.getCategory().getDescription()
-
+                product.getCategory(),
+                product.getSubCategory()
         );
     }
 

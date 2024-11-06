@@ -1,5 +1,7 @@
 package com.rkisuru.product.product;
 
+import com.rkisuru.product.category.Category;
+
 import java.math.BigDecimal;
 
 public record ProductResponse(
@@ -9,9 +11,8 @@ public record ProductResponse(
         String description,
         Double stock,
         BigDecimal price,
-        Integer categoryId,
-        String categoryName,
-        String categoryDescription
+        Category category,
+        Category.SubCategory subCategory
 
 ) {
 }

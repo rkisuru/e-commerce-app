@@ -6,7 +6,6 @@ import java.math.BigDecimal;
 
 public record ProductRequest(
 
-        Integer id,
         @NotNull(message = "Product name is required")
         String name,
         @NotNull(message = "Product description is required")
@@ -15,7 +14,8 @@ public record ProductRequest(
         Double stock,
         @NotNull(message = "Price should be positive")
         BigDecimal price,
-        @NotNull(message = "Product category is required")
-        Integer categoryId
+
+        String category,
+        String subCategory
 ) {
 }
