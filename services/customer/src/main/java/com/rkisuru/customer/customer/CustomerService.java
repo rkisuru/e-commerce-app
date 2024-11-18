@@ -54,12 +54,6 @@ public class CustomerService {
                 .collect(Collectors.toList());
     }
 
-    public Boolean existsById(Integer customerId) {
-
-        return customerRepository.findById(customerId)
-                .isPresent();
-    }
-
     public CustomerResponse findById(Integer customerId) {
 
         return customerRepository.findById(customerId)
