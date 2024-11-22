@@ -1,94 +1,77 @@
 package com.rkisuru.order.order;
 
-import com.rkisuru.order.customer.CustomerClient;
-import com.rkisuru.order.exception.BusinessException;
-import com.rkisuru.order.kafka.OrderConfirmation;
-import com.rkisuru.order.kafka.OrderProducer;
-import com.rkisuru.order.orderline.OrderLineRequest;
-import com.rkisuru.order.orderline.OrderLineService;
-import com.rkisuru.order.payment.PaymentClient;
-import com.rkisuru.order.payment.PaymentRequest;
-import com.rkisuru.order.product.ProductClient;
-import com.rkisuru.order.product.PurchaseRequest;
-import jakarta.persistence.EntityNotFoundException;
+import com.rkisuru.order.client.ProductClient;
+import com.rkisuru.order.product.Product;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class OrderService {
 
-    private final CustomerClient customerClient;
-
+    private final OrderRepository orderRepository;
     private final ProductClient productClient;
 
-    private final OrderRepository orderRepository;
+    public Product findProductById(Integer productId) {
+        return productClient.getProductById(productId);
+    }
 
-    private final OrderMapper orderMapper;
+    public OrderResponse createOrder(Integer productId, Double quantity, String oAuth2User) throws Exception {
 
-    private final OrderLineService orderLineService;
+        Product product = productClient.getProductById(productId);
 
-    private final OrderProducer orderProducer;
-
-    private final PaymentClient paymentClient;
-
-    public Integer createOrder(OrderRequest orderRequest) {
-
-        var customer = this.customerClient.findCustomerById(orderRequest.customerId())
-                .orElseThrow(() -> new BusinessException("Customer not found"));
-
-        var purchasedProducts = this.productClient.purchaseProducts(orderRequest.products());
-
-        var order = this.orderRepository.save(orderMapper.toOrder(orderRequest));
-
-        for (PurchaseRequest purchaseRequest: orderRequest.products()) {
-
-            orderLineService.saveOrderLine(
-                    new OrderLineRequest(
-                            null,
-                            order.getId(),
-                            purchaseRequest.productId(),
-                            purchaseRequest.quantity()
-                    )
-            );
+        if (product.getStock() < quantity) {
+            throw new Exception("Insufficient stock available");
         }
 
-        var paymentRequest = new PaymentRequest(
-                orderRequest.amount(),
-                orderRequest.paymentmethod(),
-                order.getId(),
-                order.getReference(),
-                customer
-        );
-        paymentClient.requestOrderPayment(paymentRequest);
+        Order order = new Order();
+        order.setProductId(productId);
+        order.setCustomerId(oAuth2User);
+        order.setTotalAmount(totalPrice(quantity, product.getPrice()));
+        order.setCreatedDate(LocalDateTime.now());
 
-        orderProducer.sendOrderConfirmation(
-                new OrderConfirmation(
-                        orderRequest.reference(),
-                        orderRequest.amount(),
-                        orderRequest.paymentmethod(),
-                        customer,
-                        purchasedProducts
-                )
-        );
-        return order.getId();
+        orderRepository.save(order);
+        return OrderResponse.builder()
+                .id(order.getId())
+                .product(findProductById(order.getProductId()))
+                .customer(order.getCustomerId())
+                .totalAmount(order.getTotalAmount())
+                .createdDate(order.getCreatedDate())
+                .build();
     }
 
-    public List<OrderResponse> findAll() {
-
-        return orderRepository.findAll()
+    public List<OrderResponse> getAllOrders(String oAuth2User) {
+        return orderRepository.findOrdersByUser(oAuth2User)
                 .stream()
-                .map(orderMapper::fromOrder)
-                .collect(Collectors.toList());
+                .map(order -> OrderResponse.builder()
+                        .id(order.getId())
+                        .product(findProductById(order.getProductId()))
+                        .customer(order.getCustomerId())
+                        .totalAmount(order.getTotalAmount())
+                        .createdDate(order.getCreatedDate())
+                        .build())
+                .toList();
     }
 
-    public OrderResponse findById(Integer id) {
+    public OrderResponse getOrderById(Integer orderId, String oAuth2User) {
+        Order order = orderRepository.findOrderByUser(oAuth2User, orderId);
+        return OrderResponse.builder()
+                .id(order.getId())
+                .product(findProductById(order.getProductId()))
+                .customer(order.getCustomerId())
+                .totalAmount(order.getTotalAmount())
+                .createdDate(order.getCreatedDate())
+                .build();
+    }
 
-        return orderRepository.findById(id)
-                .map(orderMapper::fromOrder)
-                .orElseThrow(()-> new EntityNotFoundException("Order not found for this id: " + id));
+    public void deleteOrder(Integer orderId) {
+        orderRepository.deleteById(orderId);
+    }
+
+    public Double totalPrice(Double quantity, Double price) {
+        return quantity * price;
     }
 }
