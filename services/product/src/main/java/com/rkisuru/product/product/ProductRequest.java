@@ -2,8 +2,6 @@ package com.rkisuru.product.product;
 
 import jakarta.validation.constraints.NotNull;
 
-import java.math.BigDecimal;
-
 public record ProductRequest(
 
         @NotNull(message = "Product name is required")
@@ -13,9 +11,8 @@ public record ProductRequest(
         @NotNull(message = "Stock should be positive")
         Double stock,
         @NotNull(message = "Price should be positive")
-        BigDecimal price,
+        Double price,
 
-        String category,
-        String subCategory
+        String category
 ) {
 }

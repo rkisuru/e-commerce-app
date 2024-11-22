@@ -2,6 +2,7 @@ package com.rkisuru.product.product;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,14 +19,7 @@ public class ProductController {
     public ResponseEntity<Integer> createProduct(
             @RequestBody @Valid ProductRequest productRequest)
     {
-        return ResponseEntity.ok(productService.createProduct(productRequest));
-    }
-
-    @PostMapping("/purchase")
-    public ResponseEntity<List<ProductPurchaseResponse>> purchaseProducts(
-            @RequestBody List<ProductPurchaseRequest> request
-    ) {
-        return ResponseEntity.ok(productService.purchaseProducts(request));
+        return ResponseEntity.status(HttpStatus.CREATED).body(productService.createProduct(productRequest));
     }
 
     @GetMapping("/{productId}")
